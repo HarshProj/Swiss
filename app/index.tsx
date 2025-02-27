@@ -47,7 +47,7 @@ const ExplorePage = ({ initialMemes }: Props) => {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
-          {memes.map((meme) => (
+          {memes?.map((meme) => (
             <MemeCard key={meme.id} meme={meme} />
           ))}
         </motion.div>

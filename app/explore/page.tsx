@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { fetchMemes } from "../utils/fetchMemes";
 import Image from "next/image";
@@ -21,6 +22,16 @@ const ExplorePage = () => {
   const [sortOption, setSortOption] = useState("new");
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Load stored likes/comments from localStorage
+  useEffect(() => {
+    const storedMemes = memes.map((meme) => ({
+      ...meme,
+      likes: parseInt(localStorage.getItem(`likes-${meme.id}`) || "0"),
+      comments: JSON.parse(localStorage.getItem(`comments-${meme.id}`) || "[]").length,
+    }));
+    setMemes(storedMemes);
+  }, []);
+
   // Sort memes based on likes or comments
   const sortedMemes = [...memes].sort((a, b) => {
     if (sortOption === "likes") return (b.likes || 0) - (a.likes || 0);
@@ -38,9 +49,17 @@ const ExplorePage = () => {
     const loadMemes = async () => {
       setLoading(true);
       const newMemes = await fetchMemes(page);
-      setMemes((prev) => [...prev, ...newMemes]);
+      
+      // Ensure unique memes
+      setMemes((prev) => {
+        const uniqueMemes = new Map(prev.map((meme) => [meme.id, meme]));
+        newMemes.forEach((meme:any) => uniqueMemes.set(meme.id, meme));
+        return Array.from(uniqueMemes.values());
+      });
+
       setLoading(false);
     };
+
     loadMemes();
   }, [page]);
 
@@ -93,7 +112,7 @@ const ExplorePage = () => {
         {filteredMemes.map((meme, index) => (
           <div
             key={meme.id}
-            ref={index === memes.length - 1 ? lastMemeRef : null}
+            ref={index === filteredMemes.length - 1 ? lastMemeRef : null}
             className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md"
           >
             <Link href={`/meme/${meme.id}`}>

@@ -3,7 +3,7 @@ import { SunIcon, MoonIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 
 const Navbar = () => {
-  const { darkMode, toggleDarkMode } = useDarkMode();
+//   const { darkMode, toggleDarkMode } = useDarkMode();
 
   return (
     <nav className="p-4 bg-white dark:bg-gray-900 flex justify-between items-center shadow-md">
@@ -19,10 +19,10 @@ const Navbar = () => {
 
         {/* Dark Mode Toggle Button */}
         <button
-          onClick={toggleDarkMode}
+        //   onClick={toggleDarkMode}
           className="p-2 rounded-full bg-gray-200 dark:bg-gray-700"
         >
-          {darkMode ? <SunIcon className="h-6 w-6 text-yellow-500" /> : <MoonIcon className="h-6 w-6 text-gray-900" />}
+          {/* {darkMode ? <SunIcon className="h-6 w-6 text-yellow-500" /> : <MoonIcon className="h-6 w-6 text-gray-900" />} */}
         </button>
       </div>
     </nav>

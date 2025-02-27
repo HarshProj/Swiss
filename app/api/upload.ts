@@ -36,7 +36,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Upload to Cloudinary
     const uploadedUrls = await Promise.all(
-      uploadedFiles.map(async (file) => {
+      uploadedFiles?.map(async (file) => {
         const fileBuffer = await fs.readFile(file.filepath);
         const uploadResponse = await cloudinary.uploader.upload_stream(
           { resource_type: "image" },

@@ -9,7 +9,7 @@ interface User {
 }
 
 interface UserContextType {
-  user: User;
+  user: User | null;
   updateUser: (updates: Partial<User>) => void;
 }
 
@@ -24,20 +24,27 @@ const defaultUser: User = {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User>(() => {
-    if (typeof window !== "undefined") {
-      return JSON.parse(localStorage.getItem("user") || JSON.stringify(defaultUser));
-    }
-    return defaultUser;
-  });
+  const [user, setUser] = useState<User | null>(null); // Initially null to avoid SSR mismatch
 
   useEffect(() => {
-    localStorage.setItem("user", JSON.stringify(user));
+    // ✅ Load user from localStorage after mounting
+    const storedUser = JSON.parse(localStorage.getItem("user") || "null") || defaultUser;
+    setUser(storedUser);
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem("user", JSON.stringify(user));
+    }
   }, [user]);
 
   const updateUser = (updates: Partial<User>) => {
-    setUser((prevUser) => ({ ...prevUser, ...updates }));
+    setUser((prevUser) => (prevUser ? { ...prevUser, ...updates } : defaultUser));
   };
+
+  if (user === null) {
+    return null; // 🚀 Prevent rendering until user is loaded
+  }
 
   return <UserContext.Provider value={{ user, updateUser }}>{children}</UserContext.Provider>;
 };
