@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { storage } from "../utils/firebase";
 import axios from "axios";
+import { db } from "./firebase";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 
 const UploadMeme = () => {
   // States
@@ -31,42 +33,60 @@ const UploadMeme = () => {
     }
   };
 
-  // Upload Meme to Firebase
-  const uploadMeme = async () => {
+  // Upload Meme to Firebase Storage
+  const uploadMeme = async (image: File | null) => {
     if (!image) return alert("Please select an image!");
-
+    
     setUploading(true);
     setProgress(0);
-    
-    const storageRef = ref(storage, `memes/${Date.now()}_${image.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, image);
-
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setProgress(progress);
-      },
-      (error) => {
-        console.error("Upload failed:", error);
-        alert("Upload failed! Please try again.");
-        setUploading(false);
-      },
-      async () => {
-        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-        setUploadedImageUrl(downloadURL);
-        setUploading(false);
-        setProgress(100);
-        alert("Meme uploaded successfully!");
-      }
-    );
+  
+    try {
+      const formData = new FormData();
+      formData.append("file", image);
+      formData.append("upload_preset", "e-comm"); // Set your Cloudinary upload preset
+      // formData.append("folder", "memes"); // Optional: Set the Cloudinary folder
+  
+      // Upload directly to Cloudinary
+    formData.append("cloud_name", `shubhcloud007`)
+      const response = await axios.post(
+        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+        formData,
+        {
+          onUploadProgress: (progressEvent) => {
+            const percent = Math.round((progressEvent.loaded * 100) / (progressEvent.total || 1));
+            setProgress(percent);
+          },
+        }
+      );
+  
+      const uploadedImageUrl = response.data.secure_url;
+      setUploadedImageUrl(uploadedImageUrl);
+      console.log("Uploaded Image URL:", uploadedImageUrl);
+  
+      // Store the URL in Firebase Firestore
+      const docRef = await addDoc(collection(db, "memes"), {
+        imageUrl: uploadedImageUrl,
+        caption,
+        createdAt: serverTimestamp(), 
+      });
+  
+      console.log("Meme stored in Firestore:", docRef.id);
+      alert("Meme uploaded and stored successfully!");
+    } catch (error) {
+      console.error("Upload failed:", error);
+      alert("Upload failed! Check Cloudinary API settings.");
+    } finally {
+      setUploading(false);
+    }
   };
+  
 
   // Generate AI Caption
   const generateAICaption = async () => {
     try {
       const res = await axios.get("https://api.imgflip.com/get_memes"); // Replace with actual AI API
-      const randomMeme = res.data.data.memes[Math.floor(Math.random() * res.data.data.memes.length)];
+      const randomMeme =
+        res.data.data.memes[Math.floor(Math.random() * res.data.data.memes.length)];
       setGeneratedCaption(randomMeme.name); // Mock AI caption
     } catch (error) {
       console.error("Error generating caption:", error);
@@ -106,9 +126,7 @@ const UploadMeme = () => {
       </div>
 
       {/* Preview */}
-      {previewUrl && (
-        <img src={previewUrl} alt="Preview" className="w-full h-auto rounded-lg mb-4 shadow-md" />
-      )}
+      {previewUrl && <img src={previewUrl} alt="Preview" className="w-full h-auto rounded-lg mb-4 shadow-md" />}
 
       {/* Caption Input */}
       <textarea
@@ -126,7 +144,7 @@ const UploadMeme = () => {
 
       {/* Upload Button */}
       <button
-        onClick={uploadMeme}
+        onClick={() => uploadMeme(image)}
         disabled={uploading}
         className="w-full px-4 py-2 bg-blue-500 text-white rounded mt-4 disabled:opacity-50"
       >

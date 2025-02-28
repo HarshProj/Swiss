@@ -1,4 +1,5 @@
-"use client"
+"use client"; // Ensures client-side rendering
+import { useDarkMode } from "../context/DarkModeContext";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
@@ -13,37 +14,32 @@ interface Meme {
   height: number;
 }
 
-interface Props {
-  initialMemes: Meme[];
-}
-
-const ExplorePage = ({ initialMemes }: Props) => {
-  const [memes, setMemes] = useState<Meme[]>(initialMemes);
+const ExplorePage = () => {
+  const [memes, setMemes] = useState<Meme[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // console.log("initialMemes", initialMemes);
-  // Fetch only if initialMemes is empty (prevents hydration errors)
+  const { darkMode, toggleDarkMode } = useDarkMode();
   useEffect(() => {
-    const fetchFn = async () => {
-      try{
-      setLoading(true);
-      axios.get("https://api.imgflip.com/get_memes").then((res) => {
+    const fetchMemes = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get("https://api.imgflip.com/get_memes");
         setMemes(res.data.data.memes.slice(0, 10));
-      });
-    } catch (error) {
-     console.log("error", error);
-    } finally {
-      setLoading(false);
-    }
-  }
-  fetchFn();
+      } catch (error) {
+        console.error("Error fetching memes:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMemes();
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div className={`min-h-screen ${darkMode?"text-gray-900":"dark:text-white"} ${darkMode?"bg-gray-200":"dark:bg-gray-900"}`}>
       <Navbar />
       <div className="max-w-5xl mx-auto py-10">
-        <h1 className="text-4xl font-bold text-center text-gray-900 dark:text-white">
+        <h1 className="text-4xl font-bold text-center ">
           Trending Memes
         </h1>
 
@@ -55,7 +51,7 @@ const ExplorePage = ({ initialMemes }: Props) => {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
-          {memes?.map((meme) => (
+          {memes.map((meme) => (
             <MemeCard key={meme.id} meme={meme} />
           ))}
         </motion.div>
@@ -63,26 +59,5 @@ const ExplorePage = ({ initialMemes }: Props) => {
     </div>
   );
 };
-
-// ✅ Ensuring Type Safety in getServerSideProps
-// export async function getServerSideProps(): Promise<{ props: { initialMemes: Meme[] } }> {
-//   try {
-//     const res = await fetch("https://api.imgflip.com/get_memes");
-//     const data = await res.json();
-
-//     return {
-//       props: {
-//         initialMemes: data.data.memes.slice(0, 10) || [],
-//       },
-//     };
-//   } catch (error) {
-//     console.error("Failed to fetch memes:", error);
-//     return {
-//       props: {
-//         initialMemes: [],
-//       },
-//     };
-//   }
-// }
 
 export default ExplorePage;

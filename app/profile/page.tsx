@@ -102,7 +102,7 @@ const Profile = () => {
           <h2 className="text-lg font-bold dark:text-white">Your Uploaded Memes</h2>
           {uploadedMemes.length > 0 ? (
             <div className="grid grid-cols-2 gap-4 mt-3">
-              {uploadedMemes.map((meme) => (
+              {uploadedMemes?.map((meme) => (
                 <Image key={meme.id} src={meme.url} alt="Uploaded Meme" width={150} height={150} className="rounded shadow" />
               ))}
             </div>
@@ -116,7 +116,7 @@ const Profile = () => {
           <h2 className="text-lg font-bold dark:text-white">Your Liked Memes</h2>
           {likedMemes.length > 0 ? (
             <div className="grid grid-cols-2 gap-4 mt-3">
-              {likedMemes.map((meme) => (
+              {likedMemes?.map((meme) => (
                 <Image key={meme.id} src={meme.url} alt="Liked Meme" width={150} height={150} className="rounded shadow" />
               ))}
             </div>
