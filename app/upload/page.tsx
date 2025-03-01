@@ -6,9 +6,12 @@ import { storage } from "../utils/firebase";
 import axios from "axios";
 import { db } from "./firebase";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import Navbar from "@/components/Navbar";
+import { useDarkMode } from "@/context/DarkModeContext";
 
 const UploadMeme = () => {
   // States
+  const { darkMode } = useDarkMode(); 
   const [image, setImage] = useState<File | null>(null);
   const [caption, setCaption] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -47,7 +50,7 @@ const UploadMeme = () => {
       // formData.append("folder", "memes"); // Optional: Set the Cloudinary folder
   
       // Upload directly to Cloudinary
-    formData.append("cloud_name", `shubhcloud007`)
+    formData.append("cloud_name", `${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}`)
       const response = await axios.post(
         `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
         formData,
@@ -114,7 +117,12 @@ const UploadMeme = () => {
   }, [previewUrl]);
 
   return (
-    <div className="p-6 max-w-2xl mx-auto bg-white dark:bg-gray-900 shadow-md rounded-lg">
+      <>
+      <div className="drop-shadow-md mb-5">
+
+<Navbar/>
+</div>
+    <div className=" p-6 max-w-2xl mx-auto bg-white dark:bg-gray-900 shadow-md rounded-lg">
       <h1 className="text-3xl font-bold mb-4 text-center dark:text-white">Upload a Meme</h1>
 
       {/* Image Input */}
@@ -172,6 +180,7 @@ const UploadMeme = () => {
         Save Meme Locally
       </button>
     </div>
+    </>
   );
 };
 

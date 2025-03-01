@@ -37,7 +37,7 @@ const ExplorePage = () => {
 
   return (
     <div className={`min-h-screen ${darkMode?"text-gray-900":"dark:text-white"} ${darkMode?"bg-gray-200":"dark:bg-gray-900"}`}>
-      <Navbar />
+      <Navbar/>
       <div className="max-w-5xl mx-auto py-10">
         <h1 className="text-4xl font-bold text-center ">
           Trending Memes
@@ -50,6 +50,7 @@ const ExplorePage = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
+          
         >
           {memes.map((meme) => (
             <MemeCard key={meme.id} meme={meme} />

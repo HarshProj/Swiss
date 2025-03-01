@@ -1,6 +1,7 @@
 import Image from "next/image";
 
 import { useDarkMode } from "../context/DarkModeContext";
+import { motion } from "framer-motion";
 interface MemeProps {
   meme: {
     id: string;
@@ -15,7 +16,8 @@ const MemeCard: React.FC<MemeProps> = ({ meme }) => {
   
   const { darkMode } = useDarkMode();
   return (
-    <div className={` ${darkMode?"bg-white":"dark:bg-gray-800"} rounded-lg shadow-lg p-4`}>
+    <motion.div className={` ${darkMode?"bg-white":"bg-gray-800"} rounded-lg shadow-lg p-4`}
+    whileHover={{ scale: 1.05 }}>
       <h2 className={`text-lg font-bold  ${darkMode?"text-gray-900":"dark:text-white"}`}>
         {meme.name}
       </h2>
@@ -27,8 +29,9 @@ const MemeCard: React.FC<MemeProps> = ({ meme }) => {
         height={meme.height}
         className="rounded-lg"
         priority // Ensures proper SSR loading
+      
       />
-    </div>
+    </motion.div>
   );
 };
 
