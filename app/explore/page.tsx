@@ -132,7 +132,7 @@ const ExplorePage = () => {
                 alt={meme.name}
                 width={meme.width}
                 height={meme.height}
-                className={`${darkMode?"rounded mt-2":"rounded mt-2 dark:text-white"}`}
+                className={`${darkMode?"rounded mt-2":"rounded mt-2 dark:text-white"} w-full h-[500px] object-cover`}
               />
             </Link>
 

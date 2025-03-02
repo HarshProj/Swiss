@@ -27,7 +27,7 @@ const MemeCard: React.FC<MemeProps> = ({ meme }) => {
         alt={meme.name}
         width={meme.width}
         height={meme.height}
-        className="rounded-lg"
+        className="rounded-lg w-full h-[500px] object-cover"
         priority // Ensures proper SSR loading
       
       />
